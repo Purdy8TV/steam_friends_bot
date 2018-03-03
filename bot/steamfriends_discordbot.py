@@ -2,48 +2,48 @@ import time
 import requests
 import telepot
 
-class steamFriendbotapi():
+class SteamFriendBot():
 
 
-    def __init__(self, botapi, steamapi, steamids, gamedb, chatid):
-        self.botapi = botapi
-        self.steamapi = steamapi
-        self.steamids = steamids
-        self.gamedb = gamedb
-        self.chatid = chatid
+    def __init__(self, bot_api, steam_api, steam_ids, game_db, chat_id):
+        self.bot_api = bot_api
+        self.steam_api = steam_api
+        self.steam_ids = steam_ids
+        self.game_db = game_db
+        self.chat_id = chat_id
 
         # Variables
         self.returned_game = None
 
         # Dictionaries for last game
         self.steam_lastgame = {}
-        for i in range(0, len(steamids)):
-            self.steam_lastgame[steamids[i]]=''
+        for i in range(0, len(steam_ids)):
+            self.steam_lastgame[steam_ids[i]]=''
 
     # Initialise Bot
     def init_bot(self):
-        mybot = telepot.Bot(self.botapi)
-        return mybot
+        myBot = telepot.Bot(self.bot_api)
+        return myBot
     
-    def string_request(self, friendslink):
+    def string_request(self, friends_link):
         requested_string = ('http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=%s&steamids=%s'
-                            % (self.steamapi, self.steamids[friendslink]))
+                            % (self.steam_api, self.steam_ids[friends_link]))
         return requested_string
 
-    def game_check(self, friendslink):
-        if self.returned_game != self.steam_lastgame[self.steamids[friendslink]]:
+    def game_check(self, friends_link):
+        if self.returned_game != self.steam_lastgame[self.steam_ids[friends_link]]:
             return True
     
-    def update_game(self, friendslink):
-        self.steam_lastgame[self.steamids[friendslink]] = self.returned_game
+    def update_game(self, friends_link):
+        self.steam_lastgame[self.steam_ids[friends_link]] = self.returned_game
 
-    def reset_game(self, friendslink):
-        self.steam_lastgame[self.steamids[friendslink]] = ''
+    def reset_game(self, friends_link):
+        self.steam_lastgame[self.steam_ids[friends_link]] = ''
 
     def execute(self):
-        mybot = self.init_bot()
+        myBot = self.init_bot()
         while True:
-            for friends in range(0, len(self.steamids)):
+            for friends in range(0, len(self.steam_ids)):
                 request_string = self.string_request(friends)
                 try:
                     # Request username and appid from user profile
@@ -52,7 +52,7 @@ class steamFriendbotapi():
                     returned_name = j['response']['players'][0]['personaname']
                     returned_id = j['response']['players'][0]['gameid']
                     # Look up game name via app id in steam db
-                    req_name_from_id = requests.get(self.gamedb)
+                    req_name_from_id = requests.get(self.game_db)
                     j_2 = req_name_from_id.json()
                     for app in j_2['applist']['apps']:
                         if app['appid'] == int(returned_id):
@@ -75,15 +75,15 @@ class steamFriendbotapi():
                                                                     returned_game))
                         print(message_to_send)
                         try:
-                            mybot.sendMessage(self.chatid, message_to_send)
+                            myBot.sendMessage(self.chat_id, message_to_send)
 
                         # Revisit this. No time to capture error term, should've done on initial testing.
 
                         except:
-                            print('Issue with mybot send message')
+                            print('Issue with myBot send message')
                             print('Wanted to send - %s' % message_to_send)
                             time.sleep(5)
-                            mybot.sendMessage(self.chatid, message_to_send)
+                            myBot.sendMessage(self.chat_id, message_to_send)
 
                     # Revisit this. No time to capture error term, should've done on initial testing.
                     # This reset_game isn't being used, figure out why it works above and how this isn't required.
