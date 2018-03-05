@@ -2,8 +2,8 @@ import time
 import requests
 import telepot
 
-class SteamFriendBot():
 
+class SteamFriendBot():
 
     def __init__(self, bot_api, steam_api, steam_ids, game_db, chat_id):
         self.bot_api = bot_api
@@ -18,22 +18,23 @@ class SteamFriendBot():
         # Dictionaries for last game
         self.steam_lastgame = {}
         for i in range(0, len(steam_ids)):
-            self.steam_lastgame[steam_ids[i]]=''
+            self.steam_lastgame[steam_ids[i]] = ''
 
     # Initialise Bot
     def init_bot(self):
         myBot = telepot.Bot(self.bot_api)
         return myBot
-    
+
     def string_request(self, friends_link):
         requested_string = ('http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=%s&steamids=%s'
                             % (self.steam_api, self.steam_ids[friends_link]))
         return requested_string
 
     def game_check(self, friends_link):
-        if self.returned_game != self.steam_lastgame[self.steam_ids[friends_link]]:
+        if self.returned_game != self.steam_lastgame[self.steam_ids[
+                                friends_link]]:
             return True
-    
+
     def update_game(self, friends_link):
         self.steam_lastgame[self.steam_ids[friends_link]] = self.returned_game
 
@@ -65,19 +66,18 @@ class SteamFriendBot():
                         print(req.raise_for_status())
                     self.reset_game(friends)
                     continue
-                
-                
 
                 try:
                     if self.game_check(friends) is True:
                         self.update_game(friends)
-                        message_to_send = ('%s is now playing %s' % (returned_name,
-                                                                    returned_game))
+                        message_to_send = ('%s is now playing %s' %
+                                           (returned_name, returned_game))
                         print(message_to_send)
                         try:
                             myBot.sendMessage(self.chat_id, message_to_send)
 
-                        # Revisit this. No time to capture error term, should've done on initial testing.
+                        # Revisit this. No time to capture error term,
+                        # should've done on initial testing.
 
                         except:
                             print('Issue with myBot send message')
@@ -85,12 +85,13 @@ class SteamFriendBot():
                             time.sleep(5)
                             myBot.sendMessage(self.chat_id, message_to_send)
 
-                    # Revisit this. No time to capture error term, should've done on initial testing.
-                    # This reset_game isn't being used, figure out why it works above and how this isn't required.
+                    # Revisit this. No time to capture error term,
+                    # should've done on initial testing.
+                    # This reset_game isn't being used, figure out why it
+                    # works above and how this isn't required.
 
                 except:
                     self.reset_game(friends)
                     print('%s is not playing anything' % (returned_name))
-                
-                time.sleep(5)
 
+                time.sleep(5)
